@@ -330,13 +330,14 @@ function CatListScreen({ catType, panels, idx, onChangeIdx, onSelect, onBack }: 
 
 // ─── Panel screen (artists or category group) ──────────────────────────────────
 
-function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel }: {
+function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel, showBack = true }: {
   panels: Panel[]
   idx: number
   onChangeIdx: (i: number) => void
   onSelectObra: (obraIdx: number) => void
   onBack: () => void
   backLabel: string
+  showBack?: boolean
 }) {
   const panel = panels[idx]
   const thumbObras = panel.obras.slice(0, 4)
@@ -348,7 +349,7 @@ function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel
   return (
     <div className={s.artistScreen}>
       <div className={s.artistHeader}>
-        <button className={s.backBtn} onClick={onBack}>← {backLabel}</button>
+        {showBack && <button className={s.backBtn} onClick={onBack}>← {backLabel}</button>}
         <div className={s.artistNav}>
           <button className={s.navCircle} onClick={() => onChangeIdx(mod(idx - 1, panels.length))}>↑</button>
           <span className={s.navCount}>{idx + 1} / {panels.length}</span>
@@ -363,7 +364,7 @@ function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel
           {panel.desc && <p className={s.artistBio}>{panel.desc}</p>}
         </div>
         <p className={s.artistHint}>
-          <kbd>↑↓</kbd> navegar &nbsp; <kbd>→</kbd> ver obras
+          <kbd>↑↓</kbd> navegar &nbsp;&nbsp; <kbd>→</kbd> ver obras
         </p>
       </div>
 
@@ -438,8 +439,7 @@ export default function ViewerPage() {
   const [artistas, setArtistas]             = useState<Artista[]>([])
   const [loading, setLoading]               = useState(true)
   const [error, setError]                   = useState(false)
-  const [mode, setMode]                     = useState<Mode>('home')
-  const [homeIdx, setHomeIdx]               = useState(0)
+  const [mode, setMode]                     = useState<Mode>('artists')
   const [aIdx, setAIdx]                     = useState(0)
   const [catType, setCatType]               = useState<CatType>('tipo')
   const [groups, setGroups]                 = useState<Panel[]>([])
@@ -458,7 +458,6 @@ export default function ViewerPage() {
   }, [])
 
   const panels: Panel[]  = artistas.map(artistaToPanel)
-  const totalObras       = artistas.reduce((acc, a) => acc + a.obras.length, 0)
 
   const currentPanel: Panel | undefined =
     mode === 'artists'                                ? panels[aIdx] :
@@ -466,18 +465,6 @@ export default function ViewerPage() {
     mode === 'artwork' && artworkOrigin === 'artists' ? panels[aIdx] :
     mode === 'artwork' && artworkOrigin === 'panel'   ? groups[gIdx] :
     undefined
-
-  const enterHome = useCallback((key: string) => {
-    if (key === 'artistas') {
-      setAIdx(0); setOIdx(0); setMode('artists')
-    } else {
-      const ct = key as CatType
-      setCatType(ct)
-      setGroups(buildGroups(artistas, ct))
-      setGIdx(0)
-      setMode('catList')
-    }
-  }, [artistas])
 
   const selectObra = useCallback((obraIdx: number) => {
     setArtworkOrigin(mode === 'artists' ? 'artists' : 'panel')
@@ -497,15 +484,10 @@ export default function ViewerPage() {
   }, [currentPanel])
 
   const onKey = useCallback((e: KeyboardEvent) => {
-    if (mode === 'home') {
-      if      (e.key === 'ArrowUp')    setHomeIdx(i => mod(i - 1, HOME_ITEMS.length))
-      else if (e.key === 'ArrowDown')  setHomeIdx(i => mod(i + 1, HOME_ITEMS.length))
-      else if (e.key === 'ArrowRight') enterHome(HOME_ITEMS[homeIdx].key)
-    } else if (mode === 'artists') {
+    if (mode === 'artists') {
       if      (e.key === 'ArrowUp')    changeArtist(mod(aIdx - 1, panels.length))
       else if (e.key === 'ArrowDown')  changeArtist(mod(aIdx + 1, panels.length))
       else if (e.key === 'ArrowRight') selectObra(0)
-      else if (e.key === 'ArrowLeft')  setMode('home')
     } else if (mode === 'catList') {
       if (!groups.length) return
       if      (e.key === 'ArrowUp')    setGIdx(i => mod(i - 1, groups.length))
@@ -523,8 +505,8 @@ export default function ViewerPage() {
       else if (e.key === 'ArrowRight') goNext()
       else if (e.key === 'ArrowUp')    setMode(artworkOrigin)
     }
-  }, [mode, homeIdx, aIdx, panels, gIdx, groups, artworkOrigin,
-      enterHome, changeArtist, changeGroup, selectObra, goPrev, goNext])
+  }, [mode, aIdx, panels, gIdx, groups, artworkOrigin,
+      changeArtist, changeGroup, selectObra, goPrev, goNext])
 
   useEffect(() => {
     window.addEventListener('keydown', onKey)
@@ -548,24 +530,15 @@ export default function ViewerPage() {
         <div className={s.centered}>Nenhum artista encontrado.</div>
       )}
 
-      {!loading && !error && artistas.length > 0 && mode === 'home' && (
-        <HomeScreen
-          idx={homeIdx}
-          onChangeIdx={setHomeIdx}
-          onSelect={enterHome}
-          artistCount={artistas.length}
-          obraCount={totalObras}
-        />
-      )}
-
       {!loading && !error && artistas.length > 0 && mode === 'artists' && (
         <PanelScreen
           panels={panels}
           idx={aIdx}
           onChangeIdx={changeArtist}
           onSelectObra={selectObra}
-          onBack={() => setMode('home')}
-          backLabel="início"
+          onBack={() => {}}
+          backLabel=""
+          showBack={false}
         />
       )}
 
