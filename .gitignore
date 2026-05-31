@@ -18,3 +18,9 @@ node_modules/
 tsconfig.tsbuildinfo
 *.d.ts.map
 app/viewer/viewer.module.css.d.ts
+
+# Local / Raspberry Pi
+local/pocketbase
+local/pb_data/
+local/logs/
+local/.env
