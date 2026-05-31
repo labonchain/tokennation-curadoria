@@ -328,46 +328,64 @@ function CatListScreen({ catType, panels, idx, onChangeIdx, onSelect, onBack }: 
   )
 }
 
-// ─── Panel screen (artists or category group) ──────────────────────────────────
+// ─── Ticker ────────────────────────────────────────────────────────────────────
 
-function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel, showBack = true }: {
+const TICKER = 'TOKENNATION  •  EXPO  •  2026  •  ARTE DIGITAL  •  NFT  •  BLOCKCHAIN  •  STATE OF TRANSITION  •  '
+
+function Ticker() {
+  const long = TICKER.repeat(5)
+  return (
+    <div className={s.ticker}>
+      <div className={s.tickerTrack}>
+        <span className={s.tickerText}>{long}</span>
+        <span className={s.tickerText}>{long}</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Panel screen (artists) ─────────────────────────────────────────────────────
+
+function PanelScreen({ panels, idx, onChangeIdx, onSelectObra }: {
   panels: Panel[]
   idx: number
   onChangeIdx: (i: number) => void
   onSelectObra: (obraIdx: number) => void
-  onBack: () => void
-  backLabel: string
-  showBack?: boolean
 }) {
-  const panel = panels[idx]
+  const panel    = panels[idx]
+  const prevPanel = panels[mod(idx - 1, panels.length)]
+  const nextPanel = panels[mod(idx + 1, panels.length)]
   const thumbObras = panel.obras.slice(0, 4)
-  const extra = panel.obras.length - 4
-  const isSingle = thumbObras.length === 1
+  const extra      = panel.obras.length - 4
+  const isSingle   = thumbObras.length === 1
   const cols = isSingle ? '1fr' : '1fr 1fr'
   const rows = isSingle ? '1fr' : '1fr 1fr'
 
   return (
     <div className={s.artistScreen}>
-      <div className={s.artistHeader}>
-        {showBack && <button className={s.backBtn} onClick={onBack}>← {backLabel}</button>}
-        <div className={s.artistNav}>
-          <button className={s.navCircle} onClick={() => onChangeIdx(mod(idx - 1, panels.length))}>↑</button>
-          <span className={s.navCount}>{idx + 1} / {panels.length}</span>
-          <button className={s.navCircle} onClick={() => onChangeIdx(mod(idx + 1, panels.length))}>↓</button>
-        </div>
-      </div>
 
+      {/* ── Left panel ── */}
       <div className={s.artistLeft}>
+
+        <button className={s.artistNavTop} onClick={() => onChangeIdx(mod(idx - 1, panels.length))}>
+          <span className={s.navLabel}>↑ Ver Artista</span>
+          <span className={s.prevNextName}>{prevPanel.name}</span>
+        </button>
+
         <div className={s.artistInfo} key={panel.id}>
           <h1 className={s.artistName}>{panel.name}</h1>
           {panel.sub && <p className={s.artistLoc}>{panel.sub}</p>}
           {panel.desc && <p className={s.artistBio}>{panel.desc}</p>}
         </div>
-        <p className={s.artistHint}>
-          <kbd>↑↓</kbd> navegar &nbsp;&nbsp; <kbd>→</kbd> ver obras
-        </p>
+
+        <button className={s.artistNavBottom} onClick={() => onChangeIdx(mod(idx + 1, panels.length))}>
+          <span className={s.prevNextName}>{nextPanel.name}</span>
+          <span className={s.navLabel}>↓ Ver Artista</span>
+        </button>
+
       </div>
 
+      {/* ── Right panel ── */}
       <div className={s.artistRight}>
         <div className={s.thumbGrid} key={panel.id} style={{ gridTemplateColumns: cols, gridTemplateRows: rows }}>
           {thumbObras.map((obra, i) => (
@@ -377,7 +395,14 @@ function PanelScreen({ panels, idx, onChangeIdx, onSelectObra, onBack, backLabel
             <button className={s.thumbMore} onClick={() => onSelectObra(4)}>+{extra}</button>
           )}
         </div>
+
+        <div className={s.thumbNavBar}>
+          <button className={s.thumbNavBtn} onClick={() => onSelectObra(0)}>← Ver obras</button>
+          <span className={s.thumbNavTitle}>{thumbObras[0]?.titulo ?? ''}</span>
+          <button className={s.thumbNavBtn} onClick={() => onSelectObra(thumbObras.length > 1 ? 1 : 0)}>Ver obras →</button>
+        </div>
       </div>
+
     </div>
   )
 }
@@ -518,6 +543,8 @@ export default function ViewerPage() {
 
   return (
     <div className={s.root}>
+      <Ticker />
+
       {loading && (
         <div className={s.centered}>
           <span className={s.spinner} />
@@ -537,9 +564,6 @@ export default function ViewerPage() {
           idx={aIdx}
           onChangeIdx={changeArtist}
           onSelectObra={selectObra}
-          onBack={() => {}}
-          backLabel=""
-          showBack={false}
         />
       )}
 

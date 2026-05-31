@@ -9,8 +9,9 @@
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   z-index: 500;
+  display: flex;
+  flex-direction: column;
 }
-
 
 /* ─── Loading / error ──────────────────────────────────────────────────────── */
 
@@ -19,7 +20,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  height: 100%;
+  flex: 1;
   color: #4a4a65;
   font-size: 0.88rem;
 }
@@ -37,6 +38,38 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
+}
+
+/* ─── Ticker ───────────────────────────────────────────────────────────────── */
+
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker {
+  width: 100%;
+  height: 32px;
+  overflow: hidden;
+  border-bottom: 1px solid #0d0d16;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tickerTrack {
+  display: flex;
+  animation: tickerScroll 50s linear infinite;
+  will-change: transform;
+}
+
+.tickerText {
+  white-space: nowrap;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: #1a1a28;
+  user-select: none;
 }
 
 /* ─── Shared nav circle button ─────────────────────────────────────────────── */
@@ -59,252 +92,13 @@
 }
 .navCircle:hover { border-color: #ff1f8e; color: #ff1f8e; }
 
-/* ─── Home screen ──────────────────────────────────────────────────────────── */
-
-.homeScreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 2rem;
-}
-
-.homeInner {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-  max-width: 420px;
-}
-
-.homeLogo {
-  display: flex;
-  flex-direction: column;
-  line-height: 0.88;
-}
-
-.homeLogoWord {
-  display: block;
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #f0f0f8;
-}
-
-.homeLogoYear {
-  display: block;
-  font-size: clamp(1.2rem, 3vw, 2rem);
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  color: #ff1f8e;
-  margin-top: 0.3em;
-}
-
-.homeStat {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #2a2a40;
-  margin: 0;
-}
-
-.homeMenu {
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid #111120;
-  border-bottom: 1px solid #111120;
-  padding: 0.25rem 0;
-}
-
-.homeMenuItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 0 0.85rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  cursor: pointer;
-  text-align: left;
-  transition: border-color 0.15s;
-}
-.homeMenuActive { border-left-color: #ff1f8e; }
-
-.homeMenuLabel {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #5a5a78;
-  transition: color 0.15s;
-}
-.homeMenuActive .homeMenuLabel,
-.homeMenuItem:hover .homeMenuLabel { color: #f0f0f8; }
-
-.homeMenuArrow {
-  font-size: 0.9rem;
-  color: #2a2a3a;
-  transition: color 0.15s, transform 0.15s;
-}
-.homeMenuActive .homeMenuArrow,
-.homeMenuItem:hover .homeMenuArrow { color: #ff1f8e; transform: translateX(3px); }
-
-.homeHint {
-  font-size: 0.56rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1e1e2a;
-  margin: 0;
-}
-.homeHint kbd { font: inherit; color: #2e2e40; }
-
-/* ─── Category list screen ─────────────────────────────────────────────────── */
-
-.catScreen {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  height: 100%;
-  overflow-y: auto;
-  padding: 2rem;
-}
-
-.catInner {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 560px;
-  padding-top: 1rem;
-}
-
-.catHeader {
-  display: flex;
-  align-items: baseline;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.catTitle {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  color: #f0f0f8;
-  margin: 0;
-}
-
-.catList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-top: 1px solid #111120;
-}
-
-.catListItem { border-bottom: 1px solid #111120; }
-
-.catItem {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 1rem 0 1rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-left: 3px solid transparent;
-  cursor: pointer;
-  text-align: left;
-  gap: 1rem;
-  transition: border-color 0.15s;
-}
-.catItemActive { border-left-color: #ff1f8e; }
-
-.catItemName {
-  flex: 1;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #4a4a65;
-  transition: color 0.15s;
-}
-.catItemActive .catItemName,
-.catItem:hover .catItemName { color: #f0f0f8; }
-
-.catItemSub {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #2a2a40;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.catItemArrow {
-  font-size: 0.9rem;
-  color: #2a2a3a;
-  flex-shrink: 0;
-  transition: color 0.15s, transform 0.15s;
-}
-.catItemActive .catItemArrow,
-.catItem:hover .catItemArrow { color: #ff1f8e; transform: translateX(3px); }
-
-.catHint {
-  font-size: 0.56rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1e1e2a;
-  margin-top: 1.5rem;
-}
-.catHint kbd { font: inherit; color: #2e2e40; }
-
-/* ─── Generic back button (header) ─────────────────────────────────────────── */
-
-.backBtn {
-  color: #2a2a3a;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.18s;
-  flex-shrink: 0;
-}
-.backBtn:hover { color: #ff1f8e; }
-
 /* ─── Artist screen ────────────────────────────────────────────────────────── */
 
 .artistScreen {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
-  grid-template-rows: auto 1fr;
-  height: 100%;
-}
-
-/* Header strip — spans both columns */
-
-.artistHeader {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.1rem 1.75rem 1.1rem 2rem;
-  border-bottom: 1px solid #0e0e18;
-}
-
-
-.artistNav {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.navCount {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #2a2a40;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Left panel */
@@ -312,14 +106,74 @@
 .artistLeft {
   display: flex;
   flex-direction: column;
-  padding: 2rem 2.5rem 2rem 2.5rem;
   border-right: 1px solid #111118;
+  overflow: hidden;
 }
+
+/* Prev / next artist nav buttons */
+
+.artistNavTop {
+  padding: 1.1rem 2rem 1rem;
+  border-bottom: 1px solid #0d0d16;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  text-align: left;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+.artistNavTop:hover { background: rgba(255,31,142,0.03); }
+
+.artistNavBottom {
+  padding: 1rem 2rem 1.1rem;
+  border-top: 1px solid #0d0d16;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+.artistNavBottom:hover { background: rgba(255,31,142,0.03); }
+
+.navLabel {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1e1e2c;
+  transition: color 0.15s;
+}
+.artistNavTop:hover .navLabel,
+.artistNavBottom:hover .navLabel { color: #ff1f8e; }
+
+.prevNextName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #222234;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
+}
+.artistNavTop:hover .prevNextName,
+.artistNavBottom:hover .prevNextName { color: #3a3a52; }
 
 /* Info block — keyed per artist so it re-animates on change */
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -330,10 +184,13 @@
   justify-content: center;
   gap: 0.65rem;
   animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 2rem 2rem 2rem 2rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .artistName {
-  font-size: clamp(2rem, 3.8vw, 4rem);
+  font-size: clamp(1.8rem, 3.2vw, 3.8rem);
   font-weight: 900;
   color: #f0f0f8;
   letter-spacing: -0.04em;
@@ -351,41 +208,26 @@
 }
 
 .artistBio {
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   line-height: 1.72;
-  color: #56566e;
+  color: #46465e;
   margin: 0;
-  max-width: 400px;
+  max-width: 380px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-
-.artistObraCount {
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #222230;
-  margin: 0;
-}
-
-.artistHint {
-  font-size: 0.56rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1e1e2a;
-  flex-shrink: 0;
-}
-.artistHint kbd { font: inherit; color: #2e2e40; }
 
 /* Right panel */
 
 .artistRight {
   background: #050508;
   display: flex;
-  align-items: stretch;
-  justify-content: center;
-  padding: 2rem;
+  flex-direction: column;
+  padding: 1.75rem 1.75rem 0;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* ─── Thumbnail grid ───────────────────────────────────────────────────────── */
@@ -393,9 +235,11 @@
 .thumbGrid {
   display: grid;
   gap: 6px;
-  width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
   animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -483,17 +327,59 @@
 }
 .thumbMore:hover { border-color: #ff1f8e; color: #ff1f8e; }
 
-.thumbEmpty {
-  border: 1px dashed #0d0d18;
-  min-height: 0;
+/* ─── Thumbnail nav bar (bottom of right panel) ────────────────────────────── */
+
+.thumbNavBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid #0d0d16;
+  margin-top: 1rem;
+  flex-shrink: 0;
+  max-width: 560px;
+  width: 100%;
+  align-self: center;
+}
+
+.thumbNavBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #252535;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.thumbNavBtn:hover { color: #ff1f8e; }
+
+.thumbNavTitle {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #2a2a3a;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ─── Artwork screen ───────────────────────────────────────────────────────── */
 
 .artworkScreen {
   position: relative;
-  width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   background: #050505;
   display: flex;
   flex-direction: column;
@@ -572,7 +458,6 @@
   display: flex;
 }
 
-/* Pink left accent line */
 .artworkBarAccent {
   width: 3px;
   background: #ff1f8e;
@@ -687,16 +572,16 @@
   .artistLeft {
     border-right: none;
     border-bottom: 1px solid #111118;
-    padding: 1.5rem;
   }
-  .artistInfo { justify-content: flex-start; }
-  .artistRight { padding: 1rem; }
+  .artistNavTop,
+  .artistNavBottom { padding: 0.875rem 1.5rem; }
+  .artistInfo { padding: 1.5rem; justify-content: flex-start; }
+  .artistRight { padding: 1rem 1rem 0; }
   .thumbGrid {
     max-width: 100%;
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
   }
-  .thumbEmpty { display: none; }
   .artworkBarBody { padding: 1rem 1.25rem; }
   .artworkDesc { display: none; }
 }
