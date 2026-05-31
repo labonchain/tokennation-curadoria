@@ -561,34 +561,72 @@
   gap: 0.4rem;
 }
 
-/* ─── Responsive ───────────────────────────────────────────────────────────── */
+/* ─── Responsive — landscape pequeno ──────────────────────────────────────── */
 
-@media (max-width: 800px) {
-  .artistScreen {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr;
-    overflow-y: auto;
-  }
-  .artistLeft {
-    border-right: none;
-    border-bottom: 1px solid #111118;
-  }
+@media (max-width: 800px) and (orientation: landscape) {
   .artistNavTop,
   .artistNavBottom { padding: 0.875rem 1.5rem; }
-  .artistInfo { padding: 1.5rem; justify-content: flex-start; }
+  .artistInfo { padding: 1.5rem; }
   .artistRight { padding: 1rem 1rem 0; }
-  .thumbGrid {
-    max-width: 100%;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-  }
+  .thumbGrid { max-width: 100%; gap: 4px; }
   .artworkBarBody { padding: 1rem 1.25rem; }
   .artworkDesc { display: none; }
 }
 
-@media (max-width: 480px) {
-  .artistName { font-size: 1.9rem; }
-  .thumbGrid { grid-template-columns: repeat(4, 1fr); gap: 3px; }
-  .artworkTitle { font-size: 1rem; }
+/* ─── Modo retrato — TVs verticais e mobile ────────────────────────────────── */
+
+@media (orientation: portrait) {
+  .artistScreen {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: unset;
+  }
+
+  /* Painel esquerdo — parte superior */
+  .artistLeft {
+    border-right: none;
+    border-bottom: 1px solid #0d0d16;
+    flex-shrink: 0;
+  }
+
+  .artistNavTop  { padding: 1.1rem 1.75rem 0.9rem; }
+  .artistNavBottom { padding: 0.9rem 1.75rem 1.1rem; }
+
+  .artistInfo {
+    padding: 1.5rem 1.75rem;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+  }
+
+  .artistName { font-size: clamp(2rem, 6vw, 4.5rem); }
+
+  /* Painel direito — parte inferior, ocupa o resto */
+  .artistRight {
+    flex: 1;
+    padding: 1.25rem 1.75rem 0;
+  }
+
+  .thumbGrid {
+    max-width: 100%;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .thumbNavBar { max-width: 100%; }
+
+  /* Artwork screen em portrait */
+  .artworkBarBody { padding: 1rem 1.5rem; }
+  .artworkDesc { display: none; }
+  .artworkTitle { font-size: clamp(1.1rem, 3vw, 1.8rem); }
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+  .artistName  { font-size: 1.9rem; }
+  .prevNextName { font-size: 1rem; }
+  .artistNavTop,
+  .artistNavBottom { padding: 0.875rem 1.25rem; }
+  .artistInfo { padding: 1.25rem; }
+  .artistRight { padding: 1rem 1rem 0; }
   .artworkBarBody { padding: 0.875rem 1rem; }
+  .artworkTitle { font-size: 1rem; }
 }
