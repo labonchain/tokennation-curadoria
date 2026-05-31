@@ -539,6 +539,39 @@ export default function ViewerPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [onKey])
 
+  // ─── Swipe / touch ────────────────────────────────────────────────────────
+  useEffect(() => {
+    let sx = 0, sy = 0
+    const onStart = (e: TouchEvent) => {
+      sx = e.touches[0].clientX
+      sy = e.touches[0].clientY
+    }
+    const onEnd = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - sx
+      const dy = e.changedTouches[0].clientY - sy
+      if (Math.abs(dx) < 45 && Math.abs(dy) < 45) return
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // horizontal — navega obras
+        if (mode === 'artists' && dx < 0) selectObra(0)
+        else if (mode === 'artwork') { if (dx < 0) goNext(); else goPrev() }
+      } else {
+        // vertical — navega artistas
+        if (mode === 'artists') {
+          if (dy < 0) changeArtist(mod(aIdx + 1, panels.length))
+          else        changeArtist(mod(aIdx - 1, panels.length))
+        } else if (mode === 'artwork' && dy > 45) {
+          setMode(artworkOrigin)
+        }
+      }
+    }
+    window.addEventListener('touchstart', onStart, { passive: true })
+    window.addEventListener('touchend',   onEnd,   { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', onStart)
+      window.removeEventListener('touchend',   onEnd)
+    }
+  }, [mode, aIdx, panels, artworkOrigin, selectObra, goPrev, goNext, changeArtist])
+
   const obra = currentPanel?.obras[oIdx]
 
   return (
