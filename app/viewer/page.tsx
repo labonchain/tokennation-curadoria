@@ -567,27 +567,6 @@ export default function ViewerPage() {
         />
       )}
 
-      {!loading && !error && artistas.length > 0 && mode === 'catList' && (
-        <CatListScreen
-          catType={catType}
-          panels={groups}
-          idx={gIdx}
-          onChangeIdx={setGIdx}
-          onSelect={(i) => { setGIdx(i); setOIdx(0); setMode('panel') }}
-          onBack={() => setMode('home')}
-        />
-      )}
-
-      {!loading && !error && artistas.length > 0 && mode === 'panel' && groups[gIdx] && (
-        <PanelScreen
-          panels={groups}
-          idx={gIdx}
-          onChangeIdx={changeGroup}
-          onSelectObra={selectObra}
-          onBack={() => setMode('catList')}
-          backLabel={CAT_LABELS[catType]}
-        />
-      )}
 
       {!loading && !error && mode === 'artwork' && obra && (
         <ArtworkScreen
