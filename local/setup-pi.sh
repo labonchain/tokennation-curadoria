@@ -11,7 +11,6 @@
 #   4. Configura .env.local para modo local
 #   5. Build do Next.js
 #   6. Configura autostart
-#   7. Testa com start.sh --no-kiosk
 #
 # Uso: cd local && ./setup-pi.sh
 
@@ -25,7 +24,7 @@ PB_DATA="$LOCAL_DIR/pb_data"
 BOLD='\033[1m'; CYAN='\033[0;36m'; GREEN='\033[0;32m'
 RED='\033[0;31m'; NC='\033[0m'
 
-STEPS=7
+STEPS=6
 step() { echo -e "\n${BOLD}${CYAN}[$1/$STEPS]${NC} ${BOLD}$2${NC}\n"; }
 ok()   { echo -e "${GREEN}    ✓ $1${NC}"; }
 fail() { echo -e "${RED}    ✗ $1${NC}"; exit 1; }
@@ -127,12 +126,8 @@ EOF
 chmod +x "$AUTOSTART_FILE"
 ok "Autostart configurado: $AUTOSTART_FILE"
 
-# ── 7. Testar ───────────────────────────────────────────────────────────────
-step 7 "Testar"
-
-echo "  Iniciando PocketBase + Next.js para teste..."
-echo "  Acesse http://$(hostname).local:3000/viewer de outro computador"
-echo "  Ctrl+C para parar"
 echo ""
-
-"$LOCAL_DIR/start.sh" --no-kiosk
+echo -e "${BOLD}${GREEN}Setup completo!${NC}"
+echo ""
+echo "  Para testar:  ./start.sh --no-kiosk"
+echo "  Para kiosk:   sudo reboot"

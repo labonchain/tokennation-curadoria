@@ -136,11 +136,9 @@ Roda **no Pi** após o deploy. Faz tudo de uma vez:
 1. Instala deps do sistema (`curl`, `jq`, `unzip`)
 2. `npm install --production`
 3. Baixa o binário do PocketBase para arm64 (detecta versão do servidor remoto)
-4. Valida que `pb_data/` existe (deve vir do rsync)
-5. `setup-env.sh --local`
-6. `npm run build`
-7. Configura autostart
-8. Testa com `start.sh --no-kiosk`
+4. Configura `.env.local` para modo local (`setup-env.sh --local`)
+5. `npm run build`
+6. Configura autostart (labwc)
 
 **Uso:**
 ```bash
