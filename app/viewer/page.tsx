@@ -566,7 +566,7 @@ export default function ViewerPage() {
         if (mode === 'artists') {
           if (dy < 0) changeArtist(mod(aIdx + 1, panels.length))
           else        changeArtist(mod(aIdx - 1, panels.length))
-        } else if (mode === 'artwork' && dy > 45) {
+        } else if (mode === 'artwork') {
           setMode(artworkOrigin)
         }
       }
