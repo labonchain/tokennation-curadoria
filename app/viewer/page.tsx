@@ -401,6 +401,13 @@ function PanelScreen({ panels, idx, onChangeIdx, onSelectObra }: {
           <span className={s.thumbNavTitle}>{thumbObras[0]?.titulo ?? ''}</span>
           <button className={s.thumbNavBtn} onClick={() => onSelectObra(thumbObras.length > 1 ? 1 : 0)}>Ver obras →</button>
         </div>
+
+        {/* Próximo artista — visível só em portrait via CSS */}
+        <button className={s.artistNextPortrait} onClick={() => onChangeIdx(mod(idx + 1, panels.length))}>
+          <span className={s.prevNextName}>{nextPanel.name}</span>
+          <span className={s.navLabel}>↓ Ver Artista</span>
+        </button>
+
       </div>
 
     </div>

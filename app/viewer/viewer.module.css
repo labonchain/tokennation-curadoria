@@ -327,6 +327,9 @@
 }
 .thumbMore:hover { border-color: #ff1f8e; color: #ff1f8e; }
 
+/* Hidden em landscape, aparece só em portrait via media query */
+.artistNextPortrait { display: none; }
+
 /* ─── Thumbnail nav bar (bottom of right panel) ────────────────────────────── */
 
 .thumbNavBar {
@@ -582,15 +585,18 @@
     grid-template-columns: unset;
   }
 
-  /* Painel esquerdo — parte superior */
+  /* Painel esquerdo: mostra só o topo (nav anterior + info atual) */
   .artistLeft {
     border-right: none;
     border-bottom: 1px solid #0d0d16;
     flex-shrink: 0;
+    /* empurra o nav-bottom para fora do fluxo normal */
   }
 
-  .artistNavTop  { padding: 1.1rem 1.75rem 0.9rem; }
-  .artistNavBottom { padding: 0.9rem 1.75rem 1.1rem; }
+  /* Esconde o "próximo artista" do painel esquerdo em portrait */
+  .artistNavBottom { display: none; }
+
+  .artistNavTop { padding: 1.1rem 1.75rem 0.9rem; }
 
   .artistInfo {
     padding: 1.5rem 1.75rem;
@@ -600,19 +606,41 @@
 
   .artistName { font-size: clamp(2rem, 6vw, 4.5rem); }
 
-  /* Painel direito — parte inferior, ocupa o resto */
+  /* Painel direito — ocupa o resto, com próximo artista ao fundo */
   .artistRight {
     flex: 1;
     padding: 1.25rem 1.75rem 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .thumbGrid {
     max-width: 100%;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
+    flex: 1;
   }
 
   .thumbNavBar { max-width: 100%; }
+
+  /* Próximo artista aparece no fundo do painel direito */
+  .artistNextPortrait {
+    display: flex !important;
+    border-top: 1px solid #0d0d16;
+    padding: 0.9rem 0 1.1rem;
+    flex-direction: column;
+    gap: 0.35rem;
+    cursor: pointer;
+    background: transparent;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    text-align: left;
+    width: 100%;
+    transition: background 0.18s;
+    flex-shrink: 0;
+  }
+  .artistNextPortrait:hover { background: rgba(255,31,142,0.03); }
 
   /* Artwork screen em portrait */
   .artworkBarBody { padding: 1rem 1.5rem; }
