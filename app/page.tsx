@@ -118,7 +118,6 @@ export default function Home() {
           '/ambientes/2025/a2.jpg',
           '/ambientes/2025/a3.jpg',
         ]}
-        ctaHref="/exposicao/2025"
       />
 
       <Edicao
@@ -132,7 +131,6 @@ export default function Home() {
           '/ambientes/2024/b2.jpg',
           '/ambientes/2024/b3.jpg',
         ]}
-        ctaHref="/exposicao/2024"
       />
 
       <Edicao
