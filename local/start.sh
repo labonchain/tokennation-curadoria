@@ -16,8 +16,16 @@ LOG_DIR="$LOCAL_DIR/logs"
 PID_FILE="$LOCAL_DIR/.pids"
 mkdir -p "$LOG_DIR"
 
+# Carregar ambiente do usuário (nvm/node/npm) — necessário para autostart
+for f in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.nvm/nvm.sh"; do
+  [ -f "$f" ] && source "$f" 2>/dev/null
+done
+
 KIOSK=true
 [ "${1:-}" = "--no-kiosk" ] && KIOSK=false
+
+# Redirecionar toda saída para log quando chamado pelo autostart
+exec > >(tee -a "$LOG_DIR/start.log") 2>&1
 
 # Parar processos anteriores se existirem
 [ -f "$LOCAL_DIR/stop.sh" ] && bash "$LOCAL_DIR/stop.sh" 2>/dev/null
@@ -56,7 +64,15 @@ echo "$PB_PID $NEXT_PID" > "$PID_FILE"
 # 3. Chromium kiosk (se habilitado)
 if $KIOSK; then
   echo "Abrindo Chromium kiosk..."
-  chromium --password-store=basic --no-first-run --kiosk http://0.0.0.0:3000/viewer
+  # Aguarda display Wayland estar disponível (labwc pode demorar)
+  TRIES=0
+  while [ -z "${WAYLAND_DISPLAY:-}" ] && [ "$TRIES" -lt 30 ]; do
+    sleep 1
+    TRIES=$((TRIES + 1))
+  done
+  chromium --password-store=basic --no-first-run \
+    --ozone-platform=wayland \
+    --kiosk http://0.0.0.0:3000/viewer
 else
   echo ""
   echo "Rodando sem kiosk. Para parar: ./local/stop.sh"
