@@ -1,303 +1,147 @@
-'use client'
+import Link from 'next/link'
 
-import { useEffect, useState, useCallback } from 'react'
+// ─── Hero ──────────────────────────────────────────────────────────────────────
 
-type Voto = '✅ Sim' | '❌ Não' | '🤔 Talvez' | ''
-
-interface Obra {
-  row: number
-  nomeArtistico: string
-  evento: string
-  titulo: string
-  descricao: string
-  ano: string
-  formato: string
-  drive: string
-  marketplace: string
-  voto1: Voto
-  voto2: Voto
-  voto3: Voto
-  resultado: string
-}
-
-const CURADORES = ['Curador 1', 'Curador 2', 'Curador 3'] as const
-type Curador = 1 | 2 | 3
-
-const VOTO_ICONS: Record<string, string> = {
-  '✅ Sim': '✅',
-  '❌ Não': '❌',
-  '🤔 Talvez': '🤔',
-}
-
-function getVotoBadge(v: Voto) {
-  if (v === '✅ Sim')    return 'sim'
-  if (v === '❌ Não')    return 'nao'
-  if (v === '🤔 Talvez') return 'talvez'
-  return ''
-}
-
-function getThumbUrl(driveUrl: string): string | null {
-  // Convert Google Drive share links to direct image/preview
-  const fileMatch = driveUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
-  if (fileMatch) {
-    return `https://drive.google.com/thumbnail?id=${fileMatch[1]}&sz=w400`
-  }
-  // Dropbox
-  if (driveUrl.includes('dropbox.com') && /\.(png|jpg|jpeg|gif|webp)/i.test(driveUrl)) {
-    return driveUrl.replace('dl=0', 'raw=1')
-  }
-  return null
-}
-
-function CardSkeleton() {
+function Hero() {
   return (
-    <div className="skeleton">
-      <div className="skeleton-thumb" />
-      <div className="skeleton-body">
-        <div className="skeleton-line" />
-        <div className="skeleton-line short" />
-        <div className="skeleton-line short" />
+    <div className="hero">
+      <div className="hero-grid-bg" aria-hidden="true">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div key={i} className="hero-grid-line-v" style={{ left: `${(i / 11) * 100}%`, animationDelay: `${i * 0.18}s` }} />
+        ))}
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="hero-grid-line-h" style={{ top: `${(i / 6) * 100}%`, animationDelay: `${i * 0.22}s` }} />
+        ))}
+        <div className="hero-glow-1" />
+        <div className="hero-glow-2" />
       </div>
-      <div className="skeleton-actions" />
+      <div className="hero-content">
+        <div className="hero-eyebrow">
+          <span className="hero-eyebrow-dot" />
+          4ª Edição · Exposição de Arte Digital · NFT Brasil
+        </div>
+        <h1 className="hero-title">
+          Estado de<br /><em>Transição</em>
+        </h1>
+        <p className="hero-sub">Pavilhão da Bienal, São Paulo</p>
+      </div>
     </div>
   )
 }
 
+// ─── Galeria de fotos ──────────────────────────────────────────────────────────
+
+function PhotoGallery({ photos }: { photos: string[] }) {
+  return (
+    <div className="edicao-gallery">
+      {photos.map((src, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <div key={i} className="edicao-gallery-item">
+          <img src={src} alt="" className="edicao-gallery-img" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Seção de edição ───────────────────────────────────────────────────────────
+
+interface EdicaoProps {
+  id: string
+  ano: string
+  tema: string
+  subtema?: string
+  texto: string
+  photos?: string[]
+  ctaHref?: string
+  ctaLabel?: string
+}
+
+function Edicao({ id, ano, tema, subtema, texto, photos, ctaHref, ctaLabel }: EdicaoProps) {
+  return (
+    <section className="edicao" id={id}>
+      <div className="edicao-intro">
+        <div className="edicao-ano-tag">{ano}</div>
+        <h2 className="edicao-tema">{tema}</h2>
+        {subtema && <div className="edicao-subtema">{subtema}</div>}
+        <p className="edicao-texto">{texto}</p>
+        {ctaHref && (
+          <div className="edicao-cta-wrap">
+            <Link href={ctaHref} className="edicao-cta-btn">
+              {ctaLabel ?? `Ver exposição ${ano} →`}
+            </Link>
+          </div>
+        )}
+      </div>
+      {photos && photos.length > 0 && <PhotoGallery photos={photos} />}
+    </section>
+  )
+}
+
+// ─── App ───────────────────────────────────────────────────────────────────────
+
 export default function Home() {
-  const [obras, setObras]         = useState<Obra[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [curador, setCurador]     = useState<Curador>(1)
-  const [filtroEvento, setFiltro] = useState('todos')
-  const [filtroVoto, setFiltroV]  = useState('todos')
-  const [busca, setBusca]         = useState('')
-  const [voting, setVoting]       = useState<Record<number, boolean>>({})
-  const [toast, setToast]         = useState<string | null>(null)
-  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({})
-
-  const fetchObras = useCallback(async () => {
-    try {
-      const res = await fetch('/api/obras')
-      const data = await res.json()
-      if (data.obras) setObras(data.obras)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchObras() }, [fetchObras])
-
-  const showToast = (msg: string) => {
-    setToast(msg)
-    setTimeout(() => setToast(null), 2500)
-  }
-
-  const votar = async (obra: Obra, voto: Voto) => {
-    const curVoto = curador === 1 ? obra.voto1 : curador === 2 ? obra.voto2 : obra.voto3
-    if (voting[obra.row]) return
-
-    // Optimistic update
-    setObras(prev => prev.map(o => {
-      if (o.row !== obra.row) return o
-      const next = { ...o }
-      const key = `voto${curador}` as 'voto1' | 'voto2' | 'voto3'
-      next[key] = curVoto === voto ? '' : voto
-      return next
-    }))
-
-    setVoting(v => ({ ...v, [obra.row]: true }))
-
-    try {
-      const newVoto = curVoto === voto ? '' : voto
-      await fetch('/api/votar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ row: obra.row, curador, voto: newVoto }),
-      })
-      showToast(newVoto ? `${VOTO_ICONS[newVoto]} Voto salvo!` : 'Voto removido')
-    } catch {
-      showToast('❌ Erro ao salvar voto')
-      fetchObras() // revert on error
-    } finally {
-      setVoting(v => ({ ...v, [obra.row]: false }))
-    }
-  }
-
-  const obrasFiltradas = obras.filter(o => {
-    if (filtroEvento !== 'todos' && o.evento !== filtroEvento) return false
-    if (busca && !o.titulo.toLowerCase().includes(busca.toLowerCase()) &&
-        !o.nomeArtistico.toLowerCase().includes(busca.toLowerCase())) return false
-    if (filtroVoto !== 'todos') {
-      const meuVoto = curador === 1 ? o.voto1 : curador === 2 ? o.voto2 : o.voto3
-      if (filtroVoto === 'sem-voto' && meuVoto) return false
-      if (filtroVoto === 'sim'     && meuVoto !== '✅ Sim') return false
-      if (filtroVoto === 'nao'     && meuVoto !== '❌ Não') return false
-      if (filtroVoto === 'talvez'  && meuVoto !== '🤔 Talvez') return false
-    }
-    return true
-  })
-
-  const countVoto = (v: string) => obras.filter(o => {
-    const mv = curador === 1 ? o.voto1 : curador === 2 ? o.voto2 : o.voto3
-    return mv === v
-  }).length
-
   return (
     <>
       <header className="header">
-        <h1>🎨 Curadoria NFT Brasil 2026</h1>
-        <span className="header-meta">{obras.length} obras · {obras.filter(o => o.resultado === '✅ SELECIONADA').length} selecionadas</span>
+        <div className="header-logo"><span>Token</span>Nation</div>
+        <div className="header-right">
+          <a href="/viewer" className="header-viewer-btn">Explorar acervo →</a>
+        </div>
       </header>
 
-      <div className="toolbar">
-        {/* Curador selector */}
-        <div className="curador-selector">
-          <span className="filter-label">Você é:</span>
-          {([1, 2, 3] as Curador[]).map(n => (
-            <button
-              key={n}
-              className={`curador-btn ${curador === n ? 'active' : ''}`}
-              onClick={() => setCurador(n)}
-            >
-              Curador {n}
-            </button>
-          ))}
-        </div>
+      <Hero />
 
-        {/* Filters */}
-        <div className="filter-group">
-          <span className="filter-label">Evento:</span>
-          <select value={filtroEvento} onChange={e => setFiltro(e.target.value)}>
-            <option value="todos">Todos</option>
-            <option value="TokenNation 2025">TokenNation 2025</option>
-            <option value="NFT Brasil 2024">NFT Brasil 2024</option>
-          </select>
-        </div>
+      <nav className="edicoes-nav">
+        <a href="#2026" className="edicao-nav-item">2026</a>
+        <a href="#2025" className="edicao-nav-item">2025</a>
+        <a href="#2024" className="edicao-nav-item">2024</a>
+        <a href="#2023" className="edicao-nav-item">2023</a>
+      </nav>
 
-        <div className="filter-group">
-          <span className="filter-label">Meu voto:</span>
-          <select value={filtroVoto} onChange={e => setFiltroV(e.target.value)}>
-            <option value="todos">Todos</option>
-            <option value="sem-voto">Sem voto</option>
-            <option value="sim">✅ Sim</option>
-            <option value="nao">❌ Não</option>
-            <option value="talvez">🤔 Talvez</option>
-          </select>
-        </div>
+      <Edicao
+        id="2026"
+        ano="2026"
+        tema="Estado de Transição"
+        subtema="Entre códigos, ética, processos e conexões"
+        texto="Houve um tempo em que a mudança tinha começo, meio e fim. Hoje, ela não termina. Não transitamos mais entre momentos — habitamos a própria transição. O que está em jogo não é apenas inovação; é a forma como nos posicionamos dentro de sistemas que continuam se reconfigurando enquanto os utilizamos."
+      />
 
-        <div className="filter-group">
-          <input
-            type="text"
-            placeholder="Buscar obra ou artista..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            style={{ width: 220 }}
-          />
-        </div>
+      <Edicao
+        id="2025"
+        ano="2025"
+        tema="Topografia da Desobediência"
+        subtema="TokenNation 2025 · Pavilhão da Bienal, São Paulo"
+        texto="A arte sempre se fez nas fronteiras movediças do possível. Propomos a arte como corpo irrestrito — a blockchain uma língua franca para artistas que sabem que valor tem um acordo coletivo. Não se trata de substituir um sistema por outro, mas de criar as condições para que novas formas de produção e distribuição possam emergir. Sendo mais nítido para o Sul Global, este movimento transcende a estética ou a individualidade: é ato político de descolonização."
+        photos={[
+          '/ambientes/2025/a1.jpg',
+          '/ambientes/2025/a2.jpg',
+          '/ambientes/2025/a3.jpg',
+        ]}
+        ctaHref="/exposicao/2025"
+      />
 
-        <div className="stats-bar">
-          <div className="stat">
-            <div className="stat-dot" style={{ background: 'var(--sim)' }} />
-            <span>{countVoto('✅ Sim')} sim</span>
-          </div>
-          <div className="stat">
-            <div className="stat-dot" style={{ background: 'var(--nao)' }} />
-            <span>{countVoto('❌ Não')} não</span>
-          </div>
-          <div className="stat">
-            <div className="stat-dot" style={{ background: 'var(--talvez)' }} />
-            <span>{countVoto('🤔 Talvez')} talvez</span>
-          </div>
-          <div className="stat">
-            <div className="stat-dot" style={{ background: 'var(--muted)' }} />
-            <span>{obras.length - countVoto('✅ Sim') - countVoto('❌ Não') - countVoto('🤔 Talvez')} sem voto</span>
-          </div>
-        </div>
-      </div>
+      <Edicao
+        id="2024"
+        ano="2024"
+        tema="Além da Linha e do Tempo"
+        subtema="Explorando Multiversos Artísticos · NFT Brasil 2024 · Pavilhão da Bienal, São Paulo"
+        texto="Uma jornada transcultural e transdimensional através da evolução da arte, desde suas diversas raízes primordiais até os horizontes infinitos da arte digital. Partindo da concepção de uma timeline descentralizada, onde cada ecossistema representa um universo artístico único — esta exposição convida os visitantes a explorarem os múltiplos caminhos da criatividade humana e as interconexões entre passado, presente e futuro."
+        photos={[
+          '/ambientes/2024/b1.jpg',
+          '/ambientes/2024/b2.jpg',
+          '/ambientes/2024/b3.jpg',
+        ]}
+        ctaHref="/exposicao/2024"
+      />
 
-      {loading ? (
-        <div className="loading-grid">
-          {Array.from({ length: 12 }).map((_, i) => <CardSkeleton key={i} />)}
-        </div>
-      ) : (
-        <div className="grid">
-          {obrasFiltradas.length === 0 && (
-            <div className="empty">Nenhuma obra encontrada</div>
-          )}
-          {obrasFiltradas.map(obra => {
-            const meuVoto = curador === 1 ? obra.voto1 : curador === 2 ? obra.voto2 : obra.voto3
-            const votoBadge = getVotoBadge(meuVoto)
-            const thumbUrl = imgErrors[obra.row] ? null : getThumbUrl(obra.drive)
-
-            return (
-              <div key={obra.row} className={`card ${votoBadge ? `voted-${votoBadge}` : ''}`}>
-                <div className="card-thumb">
-                  {thumbUrl && !imgErrors[obra.row] ? (
-                    <img
-                      src={thumbUrl}
-                      alt={obra.titulo}
-                      onError={() => setImgErrors(e => ({ ...e, [obra.row]: true }))}
-                    />
-                  ) : (
-                    <div className="card-thumb-placeholder">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                      </svg>
-                      {obra.drive && (
-                        <a href={obra.drive} target="_blank" rel="noreferrer" style={{ fontSize: '0.65rem', color: 'var(--accent)', opacity: 0.8 }}>
-                          Ver arquivo ↗
-                        </a>
-                      )}
-                    </div>
-                  )}
-
-                  <span className={`evento-badge ${obra.evento === 'TokenNation 2025' ? 'badge-tn' : 'badge-alem'}`}>
-                    {obra.evento === 'TokenNation 2025' ? 'TN 2025' : '2024'}
-                  </span>
-
-                  {votoBadge && (
-                    <div className={`vote-badge ${votoBadge}`}>
-                      {VOTO_ICONS[meuVoto]}
-                    </div>
-                  )}
-                </div>
-
-                <div className="card-body">
-                  <div className="card-title" title={obra.titulo}>{obra.titulo}</div>
-                  <div className="card-artist">{obra.nomeArtistico}</div>
-                  <div className="card-year">{obra.ano}{obra.formato ? ` · ${obra.formato}` : ''}</div>
-                  {obra.drive && (
-                    <a className="drive-link" href={obra.drive} target="_blank" rel="noreferrer">
-                      🔗 Ver arquivo da obra
-                    </a>
-                  )}
-                  {obra.marketplace && (
-                    <a className="drive-link" href={obra.marketplace} target="_blank" rel="noreferrer">
-                      🛒 Ver no marketplace
-                    </a>
-                  )}
-                </div>
-
-                <div className="card-actions">
-                  {(['✅ Sim', '❌ Não', '🤔 Talvez'] as Voto[]).map(v => (
-                    <button
-                      key={v}
-                      className={`btn-vote ${getVotoBadge(v)} ${meuVoto === v ? 'active' : ''} ${voting[obra.row] ? 'loading' : ''}`}
-                      onClick={() => votar(obra, v)}
-                      disabled={voting[obra.row]}
-                    >
-                      {VOTO_ICONS[v!]} {v === '✅ Sim' ? 'Sim' : v === '❌ Não' ? 'Não' : 'Talvez'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {toast && <div className="toast">{toast}</div>}
+      <Edicao
+        id="2023"
+        ano="2023"
+        tema="NFT Brasil 2023"
+        subtema="Primeira Exposição de Arte Digital · Pavilhão da Bienal, São Paulo"
+        texto="O início do movimento. Em 2023, o NFT Brasil reuniu cerca de 20 mil pessoas no Pavilhão da Bienal, realizando a primeira Exposição de Arte Digital da América Latina — com mais de 100 artistas e 500 obras neste icônico local da arte brasileira."
+      />
     </>
   )
 }

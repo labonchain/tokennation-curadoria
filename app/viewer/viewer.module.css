@@ -1,0 +1,709 @@
+/* ─── Root ─────────────────────────────────────────────────────────────────── */
+
+.root {
+  position: fixed;
+  inset: 0;
+  background: #08080f;
+  color: #f0f0f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  z-index: 500;
+}
+
+
+/* ─── Loading / error ──────────────────────────────────────────────────────── */
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  height: 100%;
+  color: #4a4a65;
+  font-size: 0.88rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #1e1e30;
+  border-top-color: #ff1f8e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ─── Shared nav circle button ─────────────────────────────────────────────── */
+
+.navCircle {
+  background: transparent;
+  border: 1px solid #1e1e30;
+  color: #4a4a65;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+.navCircle:hover { border-color: #ff1f8e; color: #ff1f8e; }
+
+/* ─── Home screen ──────────────────────────────────────────────────────────── */
+
+.homeScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+}
+
+.homeInner {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.homeLogo {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.88;
+}
+
+.homeLogoWord {
+  display: block;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #f0f0f8;
+}
+
+.homeLogoYear {
+  display: block;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #ff1f8e;
+  margin-top: 0.3em;
+}
+
+.homeStat {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2a2a40;
+  margin: 0;
+}
+
+.homeMenu {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #111120;
+  border-bottom: 1px solid #111120;
+  padding: 0.25rem 0;
+}
+
+.homeMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0 0.85rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+.homeMenuActive { border-left-color: #ff1f8e; }
+
+.homeMenuLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #5a5a78;
+  transition: color 0.15s;
+}
+.homeMenuActive .homeMenuLabel,
+.homeMenuItem:hover .homeMenuLabel { color: #f0f0f8; }
+
+.homeMenuArrow {
+  font-size: 0.9rem;
+  color: #2a2a3a;
+  transition: color 0.15s, transform 0.15s;
+}
+.homeMenuActive .homeMenuArrow,
+.homeMenuItem:hover .homeMenuArrow { color: #ff1f8e; transform: translateX(3px); }
+
+.homeHint {
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1e1e2a;
+  margin: 0;
+}
+.homeHint kbd { font: inherit; color: #2e2e40; }
+
+/* ─── Category list screen ─────────────────────────────────────────────────── */
+
+.catScreen {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.catInner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  padding-top: 1rem;
+}
+
+.catHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.catTitle {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #f0f0f8;
+  margin: 0;
+}
+
+.catList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid #111120;
+}
+
+.catListItem { border-bottom: 1px solid #111120; }
+
+.catItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 0 1rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  gap: 1rem;
+  transition: border-color 0.15s;
+}
+.catItemActive { border-left-color: #ff1f8e; }
+
+.catItemName {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4a4a65;
+  transition: color 0.15s;
+}
+.catItemActive .catItemName,
+.catItem:hover .catItemName { color: #f0f0f8; }
+
+.catItemSub {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2a2a40;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.catItemArrow {
+  font-size: 0.9rem;
+  color: #2a2a3a;
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.15s;
+}
+.catItemActive .catItemArrow,
+.catItem:hover .catItemArrow { color: #ff1f8e; transform: translateX(3px); }
+
+.catHint {
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1e1e2a;
+  margin-top: 1.5rem;
+}
+.catHint kbd { font: inherit; color: #2e2e40; }
+
+/* ─── Generic back button (header) ─────────────────────────────────────────── */
+
+.backBtn {
+  color: #2a2a3a;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.backBtn:hover { color: #ff1f8e; }
+
+/* ─── Artist screen ────────────────────────────────────────────────────────── */
+
+.artistScreen {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+}
+
+/* Header strip — spans both columns */
+
+.artistHeader {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.75rem 1.1rem 2rem;
+  border-bottom: 1px solid #0e0e18;
+}
+
+
+.artistNav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navCount {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2a2a40;
+}
+
+/* Left panel */
+
+.artistLeft {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2.5rem 2rem 2.5rem;
+  border-right: 1px solid #111118;
+}
+
+/* Info block — keyed per artist so it re-animates on change */
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.artistInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.65rem;
+  animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.artistName {
+  font-size: clamp(2rem, 3.8vw, 4rem);
+  font-weight: 900;
+  color: #f0f0f8;
+  letter-spacing: -0.04em;
+  line-height: 0.94;
+  margin: 0;
+}
+
+.artistLoc {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ff1f8e;
+  margin: 0;
+}
+
+.artistBio {
+  font-size: 0.84rem;
+  line-height: 1.72;
+  color: #56566e;
+  margin: 0;
+  max-width: 400px;
+}
+
+.artistObraCount {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #222230;
+  margin: 0;
+}
+
+.artistHint {
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1e1e2a;
+  flex-shrink: 0;
+}
+.artistHint kbd { font: inherit; color: #2e2e40; }
+
+/* Right panel */
+
+.artistRight {
+  background: #050508;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+/* ─── Thumbnail grid ───────────────────────────────────────────────────────── */
+
+.thumbGrid {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  max-width: 560px;
+  animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.thumbItem {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #0f0f1a;
+  border: 1px solid #111120;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+  transition: border-color 0.18s;
+  min-height: 0;
+}
+.thumbItem:hover { border-color: #ff1f8e; }
+
+.thumbBg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0f0f1a, #080812);
+}
+
+.thumbImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.3s ease;
+  display: block;
+}
+.thumbLoaded { opacity: 1; }
+.thumbItem:hover .thumbImg { transform: scale(1.05); }
+
+.thumbVideoIcon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a2a45;
+  font-size: 1.6rem;
+}
+
+.thumbOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 55%);
+  display: flex;
+  align-items: flex-end;
+  padding: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+.thumbItem:hover .thumbOverlay { opacity: 1; }
+
+.thumbTitle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.thumbMore {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 1px dashed #1a1a2a;
+  color: #2a2a45;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  transition: border-color 0.15s, color 0.15s;
+}
+.thumbMore:hover { border-color: #ff1f8e; color: #ff1f8e; }
+
+.thumbEmpty {
+  border: 1px dashed #0d0d18;
+  min-height: 0;
+}
+
+/* ─── Artwork screen ───────────────────────────────────────────────────────── */
+
+.artworkScreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  display: flex;
+  flex-direction: column;
+}
+
+.artworkBackBtn {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.5rem;
+  z-index: 30;
+  background: rgba(5, 5, 8, 0.8);
+  border: 1px solid #1a1a28;
+  color: #3a3a55;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 0.38rem 0.9rem;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.15s, color 0.15s;
+}
+.artworkBackBtn:hover { border-color: #ff1f8e; color: #ff1f8e; }
+
+/* Image area */
+
+.artworkStage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 5vw 1rem;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.frameBlur {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(22px) saturate(1.1);
+  transform: scale(1.04);
+  opacity: 1;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+
+.frameMedia {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.frame.frameLoaded .frameBlur  { opacity: 0; }
+.frame.frameLoaded .frameMedia { opacity: 1; }
+
+/* ─── Bottom info bar ──────────────────────────────────────────────────────── */
+
+.artworkBar {
+  flex-shrink: 0;
+  position: relative;
+  background: #08080f;
+  border-top: 1px solid #111120;
+  display: flex;
+}
+
+/* Pink left accent line */
+.artworkBarAccent {
+  width: 3px;
+  background: #ff1f8e;
+  flex-shrink: 0;
+}
+
+.artworkBarBody {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 2rem 1.25rem 1.75rem;
+  min-width: 0;
+}
+
+.artworkBarLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.artworkArtistName {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ff1f8e;
+}
+
+.artworkTitle {
+  margin: 0.15rem 0 0;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #f0f0f8;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artworkDesc {
+  margin: 0.3rem 0 0;
+  font-size: 0.75rem;
+  color: #4a4a65;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.artworkMeta {
+  margin: 0.2rem 0 0;
+  font-size: 0.62rem;
+  color: #2e2e45;
+  letter-spacing: 0.05em;
+}
+
+.artworkLink {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ff1f8e;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 31, 142, 0.28);
+  padding-bottom: 1px;
+  width: fit-content;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.artworkLink:hover { border-color: #ff1f8e; }
+
+.artworkBarRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.artworkCounter {
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #2a2a3a;
+  white-space: nowrap;
+}
+
+.artworkNavRow {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 800px) {
+  .artistScreen {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+    overflow-y: auto;
+  }
+  .artistLeft {
+    border-right: none;
+    border-bottom: 1px solid #111118;
+    padding: 1.5rem;
+  }
+  .artistInfo { justify-content: flex-start; }
+  .artistRight { padding: 1rem; }
+  .thumbGrid {
+    max-width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .thumbEmpty { display: none; }
+  .artworkBarBody { padding: 1rem 1.25rem; }
+  .artworkDesc { display: none; }
+}
+
+@media (max-width: 480px) {
+  .artistName { font-size: 1.9rem; }
+  .thumbGrid { grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .artworkTitle { font-size: 1rem; }
+  .artworkBarBody { padding: 0.875rem 1rem; }
+}

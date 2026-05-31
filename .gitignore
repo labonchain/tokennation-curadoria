@@ -1,4 +1,20 @@
+# Build
 .next/
+out/
+dist/
+
+# Dependencies
 node_modules/
+
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+tsconfig.tsbuildinfo
+*.d.ts.map
+app/viewer/viewer.module.css.d.ts

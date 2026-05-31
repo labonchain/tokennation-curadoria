@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 
-const PB_BASE = 'https://pocketbase-tokennation.dokploy.tekne.studio'
+const PB_BASE = process.env.NEXT_PUBLIC_PB_URL || 'https://pocketbase-tokennation.dokploy.tekne.studio'
 
 interface Obra {
   id: string
@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [filter, setFilter]     = useState<Filter>('all')
   const [search, setSearch]     = useState('')
   const [saving, setSaving]     = useState<Set<string>>(new Set())
+  const [uploading, setUploading] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const t = localStorage.getItem('admin_pb_token')
@@ -99,6 +100,38 @@ export default function AdminPage() {
     }
   }
 
+  const uploadFile = async (obra: Obra, field: 'media' | 'thumb', file: File) => {
+    if (!token) return
+    const key = `${obra.id}-${field}`
+    setUploading(prev => new Set(prev).add(key))
+    try {
+      const form = new FormData()
+      form.append(field, file)
+      const res = await fetch(`${PB_BASE}/api/collections/obras/records/${obra.id}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      })
+      if (res.ok) {
+        const updated = await res.json()
+        setObras(prev => prev.map(o => o.id === obra.id ? { ...o, [field]: updated[field] } : o))
+      }
+    } finally {
+      setUploading(prev => { const s = new Set(prev); s.delete(key); return s })
+    }
+  }
+
+  const triggerUpload = (obra: Obra, field: 'media' | 'thumb') => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = field === 'thumb' ? 'image/*' : '*'
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (file) uploadFile(obra, field, file)
+    }
+    input.click()
+  }
+
   const thumbUrl = (obra: Obra) => {
     if (obra.thumb)  return `${PB_BASE}/api/files/obras/${obra.id}/${obra.thumb}?thumb=256x256`
     if (obra.media)  return `${PB_BASE}/api/files/obras/${obra.id}/${obra.media}?thumb=256x256`
@@ -116,9 +149,12 @@ export default function AdminPage() {
     return true
   })
 
-  const ativas   = obras.filter(o => o.ativo).length
-  const comMedia = obras.filter(o => o.media).length
-  const semMedia = obras.filter(o => !o.media).length
+  const ativas          = obras.filter(o =>  o.ativo).length
+  const inativas        = obras.filter(o => !o.ativo).length
+  const inativasComMidia = obras.filter(o => !o.ativo &&  o.media).length
+  const inativasSemMidia = obras.filter(o => !o.ativo && !o.media).length
+  const comMedia        = obras.filter(o => o.media).length
+  const semMedia        = obras.filter(o => !o.media).length
 
   // ─── Login ──────────────────────────────────────────────────────────────────
 
@@ -161,9 +197,14 @@ export default function AdminPage() {
         <div style={{ display: 'flex', gap: 16, marginLeft: 'auto', alignItems: 'center' }}>
           <span style={{ color: '#555', fontSize: 12 }}>
             <span style={{ color: '#22c55e' }}>{ativas}</span> ativas ·{' '}
-            <span style={{ color: '#888' }}>{comMedia}</span> com media ·{' '}
-            <span style={{ color: '#ef4444' }}>{semMedia}</span> sem media ·{' '}
-            {obras.length} total
+            <span style={{ color: '#ef4444' }}>{inativas}</span> inativas{' '}
+            <span style={{ color: '#333' }}>({' '}</span>
+            <span style={{ color: '#f59e0b' }}>{inativasComMidia}</span>
+            <span style={{ color: '#555' }}> c/ mídia · </span>
+            <span style={{ color: '#ef4444' }}>{inativasSemMidia}</span>
+            <span style={{ color: '#555' }}> s/ mídia</span>
+            <span style={{ color: '#333' }}>{' '})</span>
+            {' '}· {obras.length} total
           </span>
           <button
             onClick={() => fetchObras(token)}
@@ -210,8 +251,10 @@ export default function AdminPage() {
       ) : (
         <div style={{ padding: '16px 20px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
           {filtradas.map(obra => {
-            const img      = thumbUrl(obra)
-            const isSaving = saving.has(obra.id)
+            const img           = thumbUrl(obra)
+            const isSaving      = saving.has(obra.id)
+            const isUploadMedia = uploading.has(`${obra.id}-media`)
+            const isUploadThumb = uploading.has(`${obra.id}-thumb`)
             return (
               <div
                 key={obra.id}
@@ -268,6 +311,42 @@ export default function AdminPage() {
                   >
                     {isSaving ? '···' : obra.ativo ? 'Desativar' : 'Ativar'}
                   </button>
+
+                  {/* Upload buttons */}
+                  <div style={{ display: 'flex', gap: 4, marginTop: 5 }}>
+                    <button
+                      onClick={() => triggerUpload(obra, 'media')}
+                      disabled={isUploadMedia}
+                      title="Substituir arquivo de mídia"
+                      style={{
+                        flex: 1,
+                        background: '#1a1a1a',
+                        border: '1px solid #2a2a2a',
+                        borderRadius: 5, padding: '5px 0', fontSize: 10,
+                        color: isUploadMedia ? '#666' : '#aaa',
+                        cursor: isUploadMedia ? 'default' : 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {isUploadMedia ? '···' : '⬆ Mídia'}
+                    </button>
+                    <button
+                      onClick={() => triggerUpload(obra, 'thumb')}
+                      disabled={isUploadThumb}
+                      title="Substituir thumbnail"
+                      style={{
+                        flex: 1,
+                        background: '#1a1a1a',
+                        border: '1px solid #2a2a2a',
+                        borderRadius: 5, padding: '5px 0', fontSize: 10,
+                        color: isUploadThumb ? '#666' : '#aaa',
+                        cursor: isUploadThumb ? 'default' : 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {isUploadThumb ? '···' : '⬆ Thumb'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )
