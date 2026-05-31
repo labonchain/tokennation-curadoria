@@ -504,6 +504,7 @@ export default function ViewerPage() {
       if      (e.key === 'ArrowLeft')  goPrev()
       else if (e.key === 'ArrowRight') goNext()
       else if (e.key === 'ArrowUp')    setMode(artworkOrigin)
+      else if (e.key === 'ArrowDown')  setMode(artworkOrigin)
     }
   }, [mode, aIdx, panels, gIdx, groups, artworkOrigin,
       changeArtist, changeGroup, selectObra, goPrev, goNext])
