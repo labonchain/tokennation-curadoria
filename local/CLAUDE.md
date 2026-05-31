@@ -80,12 +80,27 @@ cd local
 ./setup-env.sh --remote   # aponta para PocketBase remoto
 ```
 
-### 3. `setup-autostart.sh` — Configura o labwc autostart do Raspberry Pi
+### 3. `start.sh` — Inicia PocketBase + Next.js + Chromium
 
-Substitui o arquivo `~/.config/labwc/autostart` para iniciar automaticamente:
-1. PocketBase (binário local, porta 8090)
-2. Next.js (`npm start` na porta 3000, aguarda PocketBase estar pronto)
-3. Chromium em kiosk mode (`http://0.0.0.0:3000`)
+Script principal de inicialização. Detecta o diretório do projeto automaticamente
+pelo caminho do próprio script — funciona independente de onde o projeto estiver.
+
+**O que faz:**
+1. PocketBase (127.0.0.1:8090) — aguarda health check
+2. Next.js (0.0.0.0:3000) — aguarda resposta
+3. Chromium em kiosk mode
+
+**Uso:**
+```bash
+./local/start.sh              # com Chromium kiosk
+./local/start.sh --no-kiosk   # só PocketBase + Next.js (útil para debug via SSH)
+```
+
+**Logs:** `local/logs/pocketbase.log` e `local/logs/nextjs.log`
+
+### 4. `setup-autostart.sh` — Configura o labwc autostart do Raspberry Pi
+
+Aponta `~/.config/labwc/autostart` para `start.sh`. Toda a lógica fica no projeto.
 
 **Uso:**
 ```bash
@@ -97,43 +112,65 @@ cd local
 ```bash
 #!/bin/bash
 # TokenNation Curadoria — labwc autostart
-
-PROJECT_DIR="/home/pi/tokennation-curadoria"
-LOCAL_DIR="$PROJECT_DIR/local"
-LOG_DIR="$LOCAL_DIR/logs"
-mkdir -p "$LOG_DIR"
-
-# 1. Inicia PocketBase
-$LOCAL_DIR/pocketbase serve \
-  --http=127.0.0.1:8090 \
-  --dir=$LOCAL_DIR/pb_data \
-  > "$LOG_DIR/pocketbase.log" 2>&1 &
-
-# 2. Aguarda PocketBase ficar pronto
-echo "Aguardando PocketBase..."
-while ! curl -sf http://127.0.0.1:8090/api/health > /dev/null 2>&1; do
-  sleep 1
-done
-echo "PocketBase pronto."
-
-# 3. Inicia Next.js (produção)
-cd "$PROJECT_DIR"
-npm start > "$LOG_DIR/nextjs.log" 2>&1 &
-
-# 4. Aguarda Next.js ficar pronto
-echo "Aguardando Next.js..."
-while ! curl -sf http://127.0.0.1:3000 > /dev/null 2>&1; do
-  sleep 1
-done
-echo "Next.js pronto."
-
-# 5. Chromium em kiosk mode
-chromium --password-store=basic --no-first-run --kiosk http://0.0.0.0:3000
+/caminho/do/projeto/local/start.sh
 ```
+
+### 5. `deploy-pi.sh` — Rsync para Raspberry Pi(s) na rede local
+
+Envia o projeto (incluindo `pb_data/` com mídias) para um ou mais Raspberry Pis via rsync.
+Resolve `expo-tkn-{N}.local` pelo número. Usuário SSH: `tkn`.
+
+**Uso:**
+```bash
+cd local
+./deploy-pi.sh 1           # expo-tkn-1.local
+./deploy-pi.sh 3           # expo-tkn-3.local
+./deploy-pi.sh 1 2 3 4 5   # todos
+```
+
+**Exclui do rsync:** `.git/`, `node_modules/`, `.next/`, `.vercel/`, `local/pocketbase` (binário do Mac não roda no Pi).
+
+### 6. `setup-pi.sh` — Setup completo no Raspberry Pi
+
+Roda **no Pi** após o deploy. Faz tudo de uma vez:
+1. Instala deps do sistema (`curl`, `jq`, `unzip`)
+2. `npm install --production`
+3. Baixa o binário do PocketBase para arm64 (detecta versão do servidor remoto)
+4. Valida que `pb_data/` existe (deve vir do rsync)
+5. `setup-env.sh --local`
+6. `npm run build`
+7. Configura autostart
+8. Testa com `start.sh --no-kiosk`
+
+**Uso:**
+```bash
+cd /home/tkn/Public/tokennation-curadoria/local
+./setup-pi.sh
+```
+
+## Fluxo Completo
+
+```bash
+# ── No Mac ───────────────────────────────────────────────────────────────────
+cd local
+./snapshot.sh              # sync banco + mídias do servidor remoto
+./deploy-pi.sh 1           # rsync para o Pi #1 (inclui pb_data/)
+
+# ── No Pi (via SSH) ─────────────────────────────────────────────────────────
+ssh tkn@expo-tkn-1.local
+cd /home/tkn/Public/tokennation-curadoria/local
+./setup-pi.sh              # instala deps, baixa PB arm64, build, autostart, teste
+
+# Ctrl+C para parar o teste
+# Reboot para iniciar em kiosk mode
+```
+
+**Pis na rede:** `expo-tkn-{1..5}.local`, usuário `tkn`.
 
 ## Setup do PocketBase no Raspberry Pi (sem Docker)
 
 O PocketBase é um binário único. Não precisa de Docker/Podman.
+O `setup-pi.sh` baixa automaticamente, mas para download manual:
 
 ```bash
 # Baixar PocketBase para ARM64 (Raspberry Pi OS 64-bit)
@@ -154,10 +191,14 @@ local/
 ├── CLAUDE.md           # este arquivo
 ├── .env                # credenciais do PocketBase remoto (não committar)
 ├── env.example         # template do .env
-├── snapshot.sh         # script de sync incremental
+├── snapshot.sh         # sync incremental do PocketBase + mídias
 ├── setup-env.sh        # alterna .env.local entre local/remoto
-├── setup-autostart.sh  # configura labwc autostart
+├── start.sh            # inicia PocketBase + Next.js + Chromium
+├── setup-autostart.sh  # aponta labwc autostart → start.sh
+├── deploy-pi.sh        # rsync para Raspberry Pi(s) na rede
+├── setup-pi.sh         # setup completo no Pi (rodar no Pi)
 ├── pocketbase          # binário do PocketBase (baixado, não committar)
+├── logs/               # logs de execução (não committar)
 └── pb_data/            # dados do PocketBase local (não committar)
     ├── data.db         # banco de dados SQLite
     └── storage/        # arquivos de mídia sincronizados
@@ -167,6 +208,13 @@ local/
 ## Comandos Úteis
 
 ```bash
+# Iniciar manualmente (sem reboot)
+./local/start.sh              # completo com kiosk
+./local/start.sh --no-kiosk   # sem Chromium (debug SSH)
+
+# Deploy para Pi(s)
+./local/deploy-pi.sh 1 2 3 4 5
+
 # Editar autostart manualmente
 nano ~/.config/labwc/autostart
 
@@ -177,8 +225,12 @@ chromium --password-store=basic --no-first-run --kiosk http://0.0.0.0:3000
 # Acessar http://127.0.0.1:8090/_/ no navegador
 
 # Build do Next.js (necessário antes de npm start)
-cd /home/pi/tokennation-curadoria && npm run build
+npm run build
 
 # Verificar saúde do PocketBase
 curl http://127.0.0.1:8090/api/health
+
+# Ver logs
+tail -f local/logs/pocketbase.log
+tail -f local/logs/nextjs.log
 ```
