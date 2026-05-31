@@ -56,7 +56,7 @@ echo "$PB_PID $NEXT_PID" > "$PID_FILE"
 # 3. Chromium kiosk (se habilitado)
 if $KIOSK; then
   echo "Abrindo Chromium kiosk..."
-  chromium --password-store=basic --no-first-run --kiosk http://0.0.0.0:3000
+  chromium --password-store=basic --no-first-run --kiosk http://0.0.0.0:3000/viewer
 else
   echo ""
   echo "Rodando sem kiosk. Para parar: ./local/stop.sh"
