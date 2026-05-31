@@ -65,10 +65,10 @@
 
 .tickerText {
   white-space: nowrap;
-  font-size: 0.56rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.28em;
-  color: #1a1a28;
+  color: #2a2a3e;
   user-select: none;
 }
 
@@ -147,28 +147,28 @@
 .artistNavBottom:hover { background: rgba(255,31,142,0.03); }
 
 .navLabel {
-  font-size: 0.5rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #1e1e2c;
+  color: #3a3a54;
   transition: color 0.15s;
 }
 .artistNavTop:hover .navLabel,
 .artistNavBottom:hover .navLabel { color: #ff1f8e; }
 
 .prevNextName {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #222234;
-  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #32324a;
+  letter-spacing: -0.03em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color 0.15s;
 }
 .artistNavTop:hover .prevNextName,
-.artistNavBottom:hover .prevNextName { color: #3a3a52; }
+.artistNavBottom:hover .prevNextName { color: #606082; }
 
 /* Info block — keyed per artist so it re-animates on change */
 
@@ -347,11 +347,11 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.5rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #252535;
+  color: #3a3a52;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -363,9 +363,9 @@
 .thumbNavBtn:hover { color: #ff1f8e; }
 
 .thumbNavTitle {
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  color: #2a2a3a;
+  color: #3a3a52;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;

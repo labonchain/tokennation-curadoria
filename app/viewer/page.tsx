@@ -330,7 +330,7 @@ function CatListScreen({ catType, panels, idx, onChangeIdx, onSelect, onBack }: 
 
 // ─── Ticker ────────────────────────────────────────────────────────────────────
 
-const TICKER = 'TOKENNATION  •  EXPO  •  2026  •  ARTE DIGITAL  •  NFT  •  BLOCKCHAIN  •  STATE OF TRANSITION  •  '
+const TICKER = 'TOKENNATION  •  EXPO  •  2026  •  ARTE DIGITAL  •  NFT  •  ESTADO DE TRANSIÇÃO  •  ARTE BLOCKCHAIN  •  PAVILHÃO DA BIENAL  •  SÃO PAULO  •  '
 
 function Ticker() {
   const long = TICKER.repeat(5)
