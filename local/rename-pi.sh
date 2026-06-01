@@ -60,20 +60,27 @@ echo ""
 REMOTE_SCRIPT=$(cat <<EOFSCRIPT
 set -e
 
-echo "[1/4] Atualizando /etc/hostname..."
-echo "$NEW_HOST" | sudo tee /etc/hostname > /dev/null
-sudo hostname "$NEW_HOST"
+echo "[1/5] Desabilitando cloud-init hostname management..."
+mkdir -p /etc/cloud/cloud.cfg.d
+cat > /etc/cloud/cloud.cfg.d/99_hostname.cfg <<EOF2
+manage_etc_hosts: false
+preserve_hostname: true
+EOF2
 
-echo "[2/4] Limpando /etc/hosts..."
-sudo sed -i "s/127.0.1.1.*/127.0.1.1 $NEW_HOST/" /etc/hosts
+echo "[2/5] Atualizando /etc/hostname..."
+echo "$NEW_HOST" > /etc/hostname
+hostnamectl set-hostname "$NEW_HOST"
 
-echo "[3/4] Regenerando chaves SSH do Pi..."
-sudo rm -f /etc/ssh/ssh_host_*
-sudo dpkg-reconfigure openssh-server 2>/dev/null || sudo ssh-keygen -A
-sudo systemctl restart ssh
+echo "[3/5] Atualizando /etc/hosts..."
+sed -i "s/127.0.1.1.*/127.0.1.1 $NEW_HOST/" /etc/hosts
 
-echo "[4/4] Reiniciando avahi-daemon..."
-sudo systemctl restart avahi-daemon
+echo "[4/5] Regenerando chaves SSH do Pi..."
+rm -f /etc/ssh/ssh_host_*
+dpkg-reconfigure openssh-server 2>/dev/null || ssh-keygen -A
+systemctl restart ssh
+
+echo "[5/5] Reiniciando avahi-daemon..."
+systemctl restart avahi-daemon
 
 echo ""
 echo "Hostname atualizado para: \$(hostname)"
